@@ -1,1 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Dashboard | Rayyan Function Hall</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#D4AF37', maroon: '#7B1E3A',
+                        cream: '#FFF8F0', charcoal: '#1C1C1C'
+                    },
+                    fontFamily: {
+                        playfair: ['"Playfair Display"', 'serif'],
+                        poppins: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #FFF8F0; }
+        .modal-bg { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body>
+
+<!-- ================= LOGIN SCREEN ================= -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 md:p-10">
+        <div class="text-center mb-8">
+            <i class="fas fa-lock text-gold text-4xl mb-4"></i>
+            <h1 class="font-playfair text-3xl font-bold text-maroon">Admin Login</h1>
+            <p class="text-gray-500 text-sm mt-2">Rayyan Function Hall Dashboard</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-charcoal mb-2">Email</label>
+                <input type="email" id="adminEmailInput" required autocomplete="username"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-charcoal mb-2">Password</label>
+                <input type="password" id="adminPasswordInput" required autocomplete="current-password"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none">
+            </div>
+            <p id="loginError" class="text-red-500 text-sm text-center"></p>
+            <button type="submit"
+                class="w-full bg-maroon text-white py-3 rounded-full font-semibold hover:bg-maroon/90 transition shadow-lg">
+                Sign In
+            </button>
+        </form>
+
+        <p class="text-center text-xs text-gray-400 mt-6">
+            Authorized personnel only
+        </p>
+    </div>
+</div>
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+<div id="adminDashboard" class="hidden min-h-screen">
+    <!-- Top bar -->
+    <nav class="bg-maroon text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-gem text-gold text-xl"></i>
+                <div>
+                    <h1 class="font-playfair text-lg font-bold">Rayyan Admin</h1>
+                    <p class="text-xs text-cream/70" id="adminEmail"></p>
+                </div>
+            </div>
+            <button id="logoutBtn" class="text-sm bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition">
+                <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Stats + actions bar -->
+        <div class="bg-white rounded-xl shadow-sm p-5 mb-6 flex flex-wrap items-center gap-4 justify-between">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-calendar-check text-gold text-3xl"></i>
+                <div>
+                    <p class="text-2xl font-bold text-charcoal" id="bookingsCount">0 bookings</p>
+                    <p class="text-xs text-gray-500">All submissions</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button id="exportBtn" class="bg-gray-100 hover:bg-gray-200 text-charcoal px-4 py-2 rounded-full text-sm font-medium transition">
+                    <i class="fas fa-file-csv mr-1"></i> Export CSV
+                </button>
+                <button id="openAddModalBtn" class="bg-gold text-charcoal hover:bg-yellow-500 px-5 py-2 rounded-full text-sm font-semibold transition shadow">
+                    <i class="fas fa-plus mr-1"></i> Add Booking
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="searchInput" placeholder="Search name, phone, email..."
+                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none">
+            </div>
+            <select id="filterEventType" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold">
+                <option value="">All Event Types</option>
+                <option>Wedding</option>
+                <option>Engagement</option>
+                <option>Birthday</option>
+                <option>Corporate Event</option>
+                <option>Baby Shower</option>
+                <option>Anniversary</option>
+                <option>Other</option>
+            </select>
+            <input type="date" id="filterDate"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold">
+        </div>
+
+        <!-- Bookings table -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-charcoal text-white text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="px-3 py-3 text-left">Submitted</th>
+                            <th class="px-3 py-3 text-left">Name</th>
+                            <th class="px-3 py-3 text-left">Phone</th>
+                            <th class="px-3 py-3 text-left">Email</th>
+                            <th class="px-3 py-3 text-left">Event</th>
+                            <th class="px-3 py-3 text-left">Event Date</th>
+                            <th class="px-3 py-3 text-center">Guests</th>
+                            <th class="px-3 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTbody" class="divide-y divide-gray-100">
+                        <tr><td colspan="8" class="text-center py-8 text-gray-400">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-gray-400 mt-6">
+            Data stored securely in Firebase · © Rayyan Function Hall
+        </p>
+    </div>
+</div>
+
+<!-- ================= ADD/EDIT MODAL ================= -->
+<div id="bookingModal" class="hidden fixed inset-0 modal-bg z-50 items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white">
+            <h2 id="modalTitle" class="font-playfair text-xl font-bold text-maroon">Add New Booking</h2>
+            <button type="button" id="cancelModalBtn" class="text-gray-400 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <form id="adminBookingForm" class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Full Name *</label>
+                    <input type="text" name="name" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Phone *</label>
+                    <input type="tel" name="phone" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                <input type="email" name="email"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none text-sm">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Event Type *</label>
+                    <select name="event_type" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold text-sm">
+                        <option value="">Select...</option>
+                        <option>Wedding</option>
+                        <option>Engagement</option>
+                        <option>Birthday</option>
+                        <option>Corporate Event</option>
+                        <option>Baby Shower</option>
+                        <option>Anniversary</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Event Date *</label>
+                    <input type="date" name="event_date" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold text-sm">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Guests</label>
+                    <input type="number" name="guests" min="1"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+                    <select name="status"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold text-sm">
+                        <option value="confirmed">Confirmed</option>
+                        <option value="pending">Pending</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Notes</label>
+                <textarea name="message" rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold text-sm"></textarea>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" id="cancelModalBtn2" onclick="document.getElementById('bookingModal').classList.add('hidden')"
+                    class="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-full hover:bg-gray-50 transition text-sm font-medium">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="flex-1 bg-maroon text-white py-2.5 rounded-full hover:bg-maroon/90 transition text-sm font-semibold shadow">
+                    Save Booking
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
